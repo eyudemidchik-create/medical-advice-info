@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://eyudemidchik-create.github.io/medical-advice-info/sitemap.xml
