@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Калькулятор ИМТ — индекс массы тела | Medical Advice</title>
+    <meta name="description" content="Бесплатный калькулятор ИМТ. Рассчитайте индекс массы тела онлайн и узнайте норму.">
+    <style>
+        * { box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; 
+            max-width: 600px; 
+            margin: 0 auto; 
+            padding: 20px; 
+            line-height: 1.6;
+            background: #f5f5f5;
+        }
+        h1 { color: #2c3e50; text-align: center; }
+        .calculator {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin: 20px 0;
+        }
+        .input-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #333;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        input:focus {
+            outline: none;
+            border-color: #27ae60;
+        }
+        button {
+            width: 100%;
+            padding: 15px;
+            background: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #219a52;
+        }
+        .result {
+            display: none;
+            margin-top: 25px;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .result.show { display: block; }
+        .result.underweight { background: #fff3cd; }
+        .result.normal { background: #d4edda; }
+        .result.overweight { background: #fff3cd; }
+        .result.obese { background: #f8d7da; }
+        .bmi-value {
+            font-size: 48px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        .bmi-text {
+            font-size: 20px;
+            margin-bottom: 15px;
+        }
+        .share-btn {
+            background: #3498db;
+            margin-top: 10px;
+        }
+        .share-btn:hover {
+            background: #2980b9;
+        }
+        .cta {
+            background: #e74c3c;
+            margin-top: 10px;
+        }
+        .cta:hover {
+            background: #c0392b;
+        }
+        .info {
+            background: #e8f4f8;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+        .scale {
+            display: flex;
+            margin-top: 15px;
+            border-radius: 8px;
+            overflow: hidden;
+            font-size: 12px;
+        }
+        .scale-item {
+            flex: 1;
+            padding: 8px 4px;
+            text-align: center;
+            color: white;
+        }
+        .scale-item:nth-child(1) { background: #f39c12; }
+        .scale-item:nth-child(2) { background: #27ae60; }
+        .scale-item:nth-child(3) { background: #f39c12; }
+        .scale-item:nth-child(4) { background: #e74c3c; }
+    </style>
+</head>
+<body>
+    <h1>🧮 Калькулятор ИМТ</h1>
+    <p style="text-align: center; color: #666;">Индекс массы тела — показатель соответствия веса и роста</p>
+
+    <div class="calculator">
+        <div class="input-group">
+            <label for="height">Рост (см)</label>
+            <input type="number" id="height" placeholder="Например: 170" min="50" max="250">
+        </div>
+
+        <div class="input-group">
+            <label for="weight">Вес (кг)</label>
+            <input type="number" id="weight" placeholder="Например: 70" min="20" max="300">
+        </div>
+
+        <button onclick="calculateBMI()">Рассчитать ИМТ</button>
+
+        <div id="result" class="result">
+            <div class="bmi-value" id="bmiValue">—</div>
+            <div class="bmi-text" id="bmiText">—</div>
+            <button class="share-btn" onclick="copyResult()">📋 Скопировать результат</button>
+            <a href="https://medadv.by/app/auth" style="text-decoration: none;">
+                <button class="cta">💬 Получить консультацию врача</button>
+            </a>
+        </div>
+
+        <div class="scale">
+            <div class="scale-item">&lt;18.5<br>Недостаток</div>
+            <div class="scale-item">18.5-25<br>Норма</div>
+            <div class="scale-item">25-30<br>Избыток</div>
+            <div class="scale-item">&gt;30<br>Ожирение</div>
+        </div>
+
+        <div class="info">
+            <strong>💡 Интерпретация ИМТ:</strong>
+            <ul>
+                <li><strong>Менее 18.5</strong> — недостаточный вес</li>
+                <li><strong>18.5 - 24.9</strong> — нормальный вес</li>
+                <li><strong>25 - 29.9</strong> — избыточный вес</li>
+                <li><strong>30 и более</strong> — ожирение</li>
+            </ul>
+            <small>ИМТ — ориентировочный показатель. Для точной оценки состояния здоровья обратитесь к врачу.</small>
+        </div>
+    </div>
+
+    <script>
+        function calculateBMI() {
+            const height = parseFloat(document.getElementById('height').value);
+            const weight = parseFloat(document.getElementById('weight').value);
+            const resultDiv = document.getElementById('result');
+            const bmiValue = document.getElementById('bmiValue');
+            const bmiText = document.getElementById('bmiText');
+
+            if (!height || !weight || height <= 0 || weight <= 0) {
+                alert('Пожалуйста, введите корректные значения роста и веса');
+                return;
+            }
+
+            const bmi = weight / Math.pow(height / 100, 2);
+            const bmiRounded = bmi.toFixed(1);
+
+            resultDiv.classList.remove('underweight', 'normal', 'overweight', 'obese', 'show');
+
+            let category = '';
+            let cssClass = '';
+
+            if (bmi < 18.5) {
+                category = 'Недостаточный вес 🟡';
+                cssClass = 'underweight';
+            } else if (bmi < 25) {
+                category = 'Нормальный вес 🟢';
+                cssClass = 'normal';
+            } else if (bmi < 30) {
+                category = 'Избыточный вес 🟠';
+                cssClass = 'overweight';
+            } else {
+                category = 'Ожирение 🔴';
+                cssClass = 'obese';
+            }
+
+            bmiValue.textContent = bmiRounded;
+            bmiText.textContent = category;
+            resultDiv.classList.add(cssClass, 'show');
+
+            // Сохраняем для копирования
+            window.bmiResultText = `Мой ИМТ: ${bmiRounded} — ${category}\nПроверь свой: https://eyudemidchik-create.github.io/medical-advice-info/calculator-imt.html`;
+        }
+
+        function copyResult() {
+            if (!window.bmiResultText) return;
+            
+            navigator.clipboard.writeText(window.bmiResultText).then(() => {
+                alert('Результат скопирован! Отправьте другу или в соцсети.');
+            }).catch(() => {
+                // Fallback для старых браузеров
+                const textarea = document.createElement('textarea');
+                textarea.value = window.bmiResultText;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                alert('Результат скопирован!');
+            });
+        }
+
+        // Enter для расчета
+        document.getElementById('height').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') calculateBMI();
+        });
+        document.getElementById('weight').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') calculateBMI();
+        });
+    </script>
+
+    <hr>
+    <p style="text-align: center; color: #666; font-size: 12px;">
+        <a href="https://eyudemidchik-create.github.io/medical-advice-info/" style="color: #666;">← На главную</a>
+    </p>
+</body>
+</html>
